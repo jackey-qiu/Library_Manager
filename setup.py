@@ -9,11 +9,11 @@ setup(
     classifiers=['Topic :: mongodb application',
                  'Programming Language :: Python'],
     license='MIT',
-    install_requires=['PyQt5','pyqtgraph','pymongo','python-dotenv','pandas'],
+    install_requires=['PyQt5','pyqtgraph','pymongo','python-dotenv','pandas','bcrypt','dnspython'],
     packages=find_packages(),
     # packages=find_packages(where='library_manager'),
     # package_dir={'': 'library_lanager'},
-    package_data={'':['*.ui','*.svg','*.qss','*.xml','*.png','*.dot'],'resources':['icons/*.*','./library_manager/resources/private/*.*']},
+    package_data={'':['*.ui','*.svg','*.qss','*.xml','*.pngn','*.dot'],'.library_manger.resources':['icons/*.*','./library_manager/resources/private/*.*']},
     scripts=['./library_manager/bin/manager_gui.py'],
     entry_points = {
         'console_scripts' : [

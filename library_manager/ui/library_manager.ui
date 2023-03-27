@@ -667,6 +667,13 @@ p, li { white-space: pre-wrap; }
                     </widget>
                    </item>
                    <item>
+                    <widget class="QPushButton" name="pushButton_reserve">
+                     <property name="text">
+                      <string>预约</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <spacer name="horizontalSpacer_2">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -865,10 +872,10 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </attribute>
    <addaction name="actionDatabaseCloud"/>
+   <addaction name="actionRegistration"/>
+   <addaction name="actionLogout"/>
    <addaction name="separator"/>
    <addaction name="actionLocalServerOn"/>
-   <addaction name="actionLocalServerOff"/>
-   <addaction name="actionLocalClient"/>
    <addaction name="actionDatabaseInfo"/>
    <addaction name="separator"/>
    <addaction name="actionSearchDB"/>
@@ -951,7 +958,7 @@ p, li { white-space: pre-wrap; }
     <string>DatabaseCloud</string>
    </property>
    <property name="toolTip">
-    <string>connect to MongoDB cloud</string>
+    <string>登录系统</string>
    </property>
   </action>
   <action name="actionImportBiTex">
@@ -978,28 +985,28 @@ p, li { white-space: pre-wrap; }
     <string>start local mongo server</string>
    </property>
   </action>
-  <action name="actionLocalServerOff">
+  <action name="actionLogout">
    <property name="icon">
     <iconset>
      <normaloff>../resources/icons/serveroff.png</normaloff>../resources/icons/serveroff.png</iconset>
    </property>
    <property name="text">
-    <string>LocalServerOff</string>
+    <string>Logout</string>
    </property>
    <property name="toolTip">
-    <string>turn off local server</string>
+    <string>注销当前用户</string>
    </property>
   </action>
-  <action name="actionLocalClient">
+  <action name="actionRegistration">
    <property name="icon">
     <iconset>
      <normaloff>../resources/icons/client.png</normaloff>../resources/icons/client.png</iconset>
    </property>
    <property name="text">
-    <string>LocalClient</string>
+    <string>Registration</string>
    </property>
    <property name="toolTip">
-    <string>start mongo client locally</string>
+    <string>注册新用户</string>
    </property>
   </action>
   <action name="actionDatabaseInfo">

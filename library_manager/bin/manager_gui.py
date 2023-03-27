@@ -2,7 +2,7 @@ import sys, os
 from PyQt5 import uic
 from pathlib import Path
 import click, glob
-from PyQt5.QtWidgets import QMainWindow,QApplication
+from PyQt5.QtWidgets import QMainWindow,QApplication, QLabel
 sys.path.append(str(Path(__file__).parent.parent.parent))
 import library_manager.core.db_operations as db
 
@@ -12,9 +12,15 @@ class MyMainWindow(QMainWindow):
 
     def init_gui(self, ui):
         #ui is a *.ui file from qt designer
+        self.ui = ui
         uic.loadUi(ui, self)
+        self.statusbar = self.statusBar()
+        self.statusLabel = QLabel(f"Welcome to ccg lib management system!")
+        self.statusbar.addPermanentWidget(self.statusLabel)
         self.widget_terminal.update_name_space('main_gui',self)
         self.actionDatabaseCloud.triggered.connect(lambda:db.start_mongo_client_cloud(self))
+        self.actionLogout.triggered.connect(lambda:db.logout(self))
+        self.actionRegistration.triggered.connect(lambda:db.register_new_user(self))
         self.pushButton_load.clicked.connect(lambda:db.load_project(self))
         self.pushButton_new_project.clicked.connect(lambda:db.new_project_dialog(self))
         self.pushButton_update_project_info.clicked.connect(lambda:db.update_project_info(self))
@@ -22,8 +28,10 @@ class MyMainWindow(QMainWindow):
         self.pushButton_return.clicked.connect(lambda:db.return_dialog(self))
         self.pushButton_new.clicked.connect(lambda:db.add_paper_info(self))
         self.pushButton_update.clicked.connect(lambda:db.update_paper_info(self))
+        self.pushButton_reserve.clicked.connect(lambda:db.reserve(self))
         self.pushButton_remove.clicked.connect(lambda:db.delete_one_paper(self))
-        self.pushButton_search.clicked.connect(lambda:db.query_by_field(self,self.comboBox_search_field.currentText(),self.lineEdit_search_item.text()))
+        # self.pushButton_search.clicked.connect(lambda:db.query_by_field(self,self.comboBox_search_field.currentText(),self.lineEdit_search_item.text()))
+        self.pushButton_search.clicked.connect(lambda:db.query_paper_info_for_paper_id(self,self.comboBox_search_field.currentText(),self.lineEdit_search_item.text()))
         self.comboBox_books.activated.connect(lambda:db.extract_paper_info(self))
 
 @click.command()

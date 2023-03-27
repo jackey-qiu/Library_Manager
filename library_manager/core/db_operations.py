@@ -1,6 +1,5 @@
 from .util import error_pop_up, PandasModel, map_chinese_to_eng_key
-from ..widgets.dialogues import NewProject, QueryDialog, LendDialog, ReturnDialog, LoginDialog
-
+from ..widgets.dialogues import NewProject, QueryDialog, LendDialog, ReturnDialog, LoginDialog, RegistrationDialog
 from dotenv import load_dotenv
 from pathlib import Path
 import os, certifi, datetime
@@ -27,6 +26,24 @@ def start_mongo_client_cloud(self):
                 print('something is wrong')
     except Exception as e:
         error_pop_up('Fail to start mongo client.'+'\n{}'.format(str(e)),'Error')
+
+def register_new_user(self):
+    try:
+        if not os.path.exists(str(Path(__file__).parent.parent/ "resources" / "private" / "atlas_password.dot")):
+            error_pop_up('You should create a file named atlas_password under Library_Manager/resources/private folder, \
+                            where you save the atlas url link for your MongoDB atlas cloud account. \
+                            please use the format ATLAS_URL="URL LINK"')
+        else:
+            env = load_dotenv(str(Path(__file__).parent.parent/ "resources" / "private" / "atlas_password.dot"))
+            if env:
+                url = os.getenv('ATLAS_URL') 
+                register_dialog(self, url)
+                #self.mongo_client = MongoClient(url,tlsCAFile=certifi.where())
+            else:
+                url = ''
+                print('something is wrong')
+    except Exception as e:
+        error_pop_up('Fail to start mongo client for new user registration.'+'\n{}'.format(str(e)),'Error')
 
 def extract_project_info(self):
     all = self.database.project_info.find()
@@ -58,6 +75,27 @@ def lend_dialog(self):
 
 def login_dialog(self, url):
     dlg = LoginDialog(self, url)
+    dlg.exec()
+
+def logout(self):
+    self.name = 'undefined'
+    self.user_name = 'undefined'
+    self.role = 'undefined'
+    self.mongo_client = None
+    self.database = None
+    try:
+        self.init_gui(self.ui)
+        self.statusLabel.setText('Goodbye, you are logged out!')
+    except:
+        pass
+
+def reserve(self):
+    if update_paper_info(self, '请确认是否预约该书？','预约成功！'):
+        self.lineEdit_borrower.setText(self.name)
+        self.lineEdit_status.setText('预约')
+
+def register_dialog(self, url):
+    dlg = RegistrationDialog(self, url)
     dlg.exec()
 
 def return_dialog(self):
@@ -148,7 +186,7 @@ def delete_one_paper(self):
         except:
             error_pop_up('Fail to delete the paper info!','Error')
 
-def update_paper_info(self):
+def update_paper_info(self, message='Would you like to update your database with new input?', status_msg = 'Update the paper info successfully:-)'):
     paper_id = self.comboBox_books.currentText()
     original = self.database.paper_info.find_one({'paper_id':paper_id})
     paper_info_new = {'book_name':self.lineEdit_book_name.text(),
@@ -167,15 +205,19 @@ def update_paper_info(self):
     paper_info_new['select'] = original['select']
     paper_info_new['archive_date'] = original['archive_date']
     try:        
-        reply = QMessageBox.question(self, 'Message', 'Would you like to update your database with new input?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        reply = QMessageBox.question(self, 'Message', message, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
             self.database.paper_info.replace_one(original,paper_info_new)
             #self.update_paper_list_in_listwidget()
             init_pandas_model_from_db(self)
-        self.statusbar.clearMessage()
-        self.statusbar.showMessage('Update the paper info successfully:-)')
+            self.statusbar.clearMessage()
+            self.statusbar.showMessage(status_msg)
+            return True
+        else:
+            return False
     except Exception as e:
-        error_pop_up('Fail to update the paper info :-(\n{}'.format(str(e)),'Error')     
+        error_pop_up('Fail to update record :-(\n{}'.format(str(e)),'Error')     
+    return False
 
 #create a new paper record in database
 def add_paper_info(self, parser = None):
@@ -214,28 +256,36 @@ def add_paper_info(self, parser = None):
     except Exception as e:
         error_pop_up('Failure to append paper info!\n{}'.format(str(e)),'Error')              
 
-def query_by_field(self, field, query_string):
-    """[return the paper_ids according the query_string w.r.t the specified field]
-
-    Args:
-        field ([string]): in ['author','book_name','book_id','status','class']
-        query_string ([string]): [the query string you want to perform, e.g. 1999 for field = 'year']
-
-    Returns:
-        [list]: [paper_id list]
-    """
-    field = map_chinese_to_eng_key(field)
-    if field == 'UNKNOWN':
-        error_pop_up('unknown field')
-        return
-    index_name = self.database.paper_info.create_index([(field,'text')])
-    targets = self.database.paper_info.find({"$text": {"$search": "\"{}\"".format(query_string)}})
-    #drop the index afterwards
-    return_list = [each['paper_id'] for each in targets]
-    self.database.paper_info.drop_index(index_name)
-    # print(field, return_list)
+def query_paper_info_for_paper_id(self, field, query_string):
+    field =  map_chinese_to_eng_key(field)
+    return_list = general_query_by_field(self, field, query_string, target_field='paper_id',collection_name = 'paper_info')
     if len(return_list)!=0:
         self.comboBox_books.setCurrentText(return_list[0])
         extract_paper_info(self)
     else:
         error_pop_up('Nothing return')
+
+def general_query_by_field(self, field, query_string, target_field, collection_name, database = None):
+    """
+    Args:
+        field ([string]): in ['author','book_name','book_id','status','class']
+        query_string ([string]): [the query string you want to perform, e.g. 1999 for field = 'year']
+        target_filed([string]): the targeted filed you would like to extract
+        collection_name([string]): the collection name you would like to target
+
+    Returns:
+        [list]: [value list of target_field with specified collection_name]
+    e.g.
+    general_query_by_field(self, field='name', query_string='jackey', target_field='email', collection_name='user_info')
+    means I would like to get a list of email for jackey in user_info collection in the current database
+    """
+
+    if database == None:
+        database = self.database
+    index_name = database[collection_name].create_index([(field,'text')])
+    targets = database[collection_name].find({"$text": {"$search": "\"{}\"".format(query_string)}})
+    #drop the index afterwards
+    return_list = [each[target_field] for each in targets]
+    # self.database.paper_info.drop_index(index_name)
+    database[collection_name].drop_index(index_name)
+    return return_list  

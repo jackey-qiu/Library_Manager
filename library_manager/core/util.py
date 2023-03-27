@@ -1,6 +1,15 @@
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QMessageBox, QMenu
 import base64
+import bcrypt
+
+def encrypt_password(password, encode = 'utf-8'):
+    password = password.encode(encode)
+    salt = bcrypt.gensalt(10)
+    return bcrypt.hashpw(password, salt)
+
+def confirm_password(password,encrypted_password, encode = 'utf-8'):
+    return bcrypt.checkpw(str(password).encode(encode), encrypted_password)
 
 def error_pop_up(msg_text = 'error', window_title = ['Error','Information','Warning'][0]):
     msg = QMessageBox()
