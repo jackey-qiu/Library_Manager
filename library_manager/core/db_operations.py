@@ -83,6 +83,7 @@ def logout(self):
     self.role = 'undefined'
     self.mongo_client = None
     self.database = None
+    self.removeToolBar(self.toolBar)
     try:
         self.init_gui(self.ui)
         self.statusLabel.setText('Goodbye, you are logged out!')
