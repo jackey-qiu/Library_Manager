@@ -68,15 +68,17 @@ class PandasModel(QtCore.QAbstractTableModel):
         if index.isValid():
             if role in [QtCore.Qt.DisplayRole, QtCore.Qt.EditRole] and index.column()!=0:
                 return str(self._data.iloc[index.row(), index.column()])
-            if role == QtCore.Qt.BackgroundRole and index.row()%2 == 0:
+            #if role == QtCore.Qt.BackgroundRole and index.row()%2 == 0:
                 # return QtGui.QColor('green')
                 # return QtGui.QColor('DeepSkyBlue')
-                return QtGui.QColor('Blue')
-            if role == QtCore.Qt.BackgroundRole and index.row()%2 == 1:
+                #return QtGui.QColor('Blue')
+            # if role == QtCore.Qt.BackgroundRole and index.row()%2 == 1:
+            if role == QtCore.Qt.BackgroundRole:
                 return QtGui.QColor('white')
                 # return QtGui.QColor('aqua')
                 # return QtGui.QColor('lightGreen')
-            if role == QtCore.Qt.ForegroundRole and index.row()%2 == 1:
+            # if role == QtCore.Qt.ForegroundRole and index.row()%2 == 1:
+            if role == QtCore.Qt.ForegroundRole:
                 return QtGui.QColor('black')
             if role == QtCore.Qt.CheckStateRole and index.column()==0:
                 if self._data.iloc[index.row(),index.column()]:
@@ -103,6 +105,7 @@ class PandasModel(QtCore.QAbstractTableModel):
         self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(0), self.columnCount(0)))
         self.layoutChanged.emit()
         self.tableviewer.resizeColumnsToContents() 
+        # self.tableviewer.horizontalHeader().setStretchLastSection(True)
         return True
     
     def update_view(self):

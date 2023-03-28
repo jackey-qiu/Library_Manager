@@ -1,7 +1,7 @@
-import sys, os
+import sys
 from PyQt5 import uic
 from pathlib import Path
-import click, glob
+import click
 from PyQt5.QtWidgets import QMainWindow,QApplication, QLabel
 sys.path.append(str(Path(__file__).parent.parent.parent))
 import library_manager.core.db_operations as db
@@ -11,7 +11,6 @@ class MyMainWindow(QMainWindow):
         super(MyMainWindow, self).__init__(parent)
 
     def init_gui(self, ui):
-        #ui is a *.ui file from qt designer
         self.ui = ui
         uic.loadUi(ui, self)
         self.statusbar = self.statusBar()
@@ -30,7 +29,6 @@ class MyMainWindow(QMainWindow):
         self.pushButton_update.clicked.connect(lambda:db.update_paper_info(self))
         self.pushButton_reserve.clicked.connect(lambda:db.reserve(self))
         self.pushButton_remove.clicked.connect(lambda:db.delete_one_paper(self))
-        # self.pushButton_search.clicked.connect(lambda:db.query_by_field(self,self.comboBox_search_field.currentText(),self.lineEdit_search_item.text()))
         self.pushButton_search.clicked.connect(lambda:db.query_paper_info_for_paper_id(self,self.comboBox_search_field.currentText(),self.lineEdit_search_item.text()))
         self.comboBox_books.activated.connect(lambda:db.extract_paper_info(self))
 

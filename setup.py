@@ -9,7 +9,7 @@ setup(
     classifiers=['Topic :: mongodb application',
                  'Programming Language :: Python'],
     license='MIT',
-    install_requires=['PyQt5','pyqtgraph','pymongo','python-dotenv','pandas','bcrypt','dnspython'],
+    install_requires=['PyQt5','pyqtgraph','pymongo','python-dotenv','pandas','dnspython'],
     packages=find_packages(),
     # packages=find_packages(where='library_manager'),
     # package_dir={'': 'library_lanager'},

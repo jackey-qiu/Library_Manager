@@ -38,9 +38,13 @@ class LendDialog(QDialog):
         # Load the dialog's GUI
         uic.loadUi(os.path.join(ui_path,"lend_book_dialogue.ui"), self)
         self.lineEdit_book_name.setText(parent.lineEdit_book_name.text())
+        self.lineEdit_borrower.setText(parent.name)
         self.pushButton_lend.clicked.connect(lambda:self.lend(parent))
 
     def lend(self, parent):
+        if parent.lineEdit_status.text() not in ['预约','在馆']:
+            error_pop_up('该书已经被借出！')
+            return
         parent.lineEdit_borrower.setText(self.lineEdit_borrower.text())
         parent.lineEdit_status.setText('借出')
         parent.lineEdit_lend_date.setText(datetime.datetime.today().strftime('%Y-%m-%d'))
@@ -131,6 +135,10 @@ class ReturnDialog(QDialog):
 
     def return_(self, parent):
         #parent.lineEdit_borrower.setText(self.lineEdit_borrower.text())
+        if parent.lineEdit_status.text() != '借出':
+            print('hello')
+            error_pop_up('该书已经被预约.')
+            return
         parent.lineEdit_status.setText('在馆')
         parent.lineEdit_return_date.setText(datetime.datetime.today().strftime('%Y-%m-%d'))
         parent.pushButton_update.click()

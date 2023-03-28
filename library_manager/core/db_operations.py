@@ -2,12 +2,13 @@ from .util import error_pop_up, PandasModel, map_chinese_to_eng_key
 from ..widgets.dialogues import NewProject, QueryDialog, LendDialog, ReturnDialog, LoginDialog, RegistrationDialog
 from dotenv import load_dotenv
 from pathlib import Path
-import os, certifi, datetime
+import os, certifi, datetime, time
 from pymongo import MongoClient
 from PyQt5.QtWidgets import QMessageBox
 from pathlib import Path
 import PyQt5
 import pandas as pd
+from functools import partial
 
 def start_mongo_client_cloud(self):
     try:
@@ -91,9 +92,13 @@ def logout(self):
         pass
 
 def reserve(self):
+    if self.lineEdit_status.text() in ['预约','借出']:
+        error_pop_up('该书已经被预约或借出！')
+        return
     if update_paper_info(self, '请确认是否预约该书？','预约成功！'):
         self.lineEdit_borrower.setText(self.name)
         self.lineEdit_status.setText('预约')
+        self.pushButton_update.click()
 
 def register_dialog(self, url):
     dlg = RegistrationDialog(self, url)
@@ -132,6 +137,12 @@ def init_pandas_model_from_db(self):
     self.tableView_book_info.setModel(self.pandas_model_paper_info)
     self.tableView_book_info.resizeColumnsToContents()
     self.tableView_book_info.setSelectionBehavior(PyQt5.QtWidgets.QAbstractItemView.SelectRows)
+    self.tableView_book_info.horizontalHeader().setStretchLastSection(True)
+    self.tableView_book_info.clicked.connect(partial(update_selected_book_info,self))
+
+def update_selected_book_info(self, index = None):
+    self.comboBox_books.setCurrentText(self.pandas_model_paper_info._data['paper_id'].tolist()[index.row()])
+    extract_paper_info(self)
 
 def update_project_info(self):
     try:
@@ -144,7 +155,6 @@ def update_project_info(self):
 def extract_paper_info(self):
     paper_id = self.comboBox_books.currentText()
     target = self.database.paper_info.find_one({'paper_id':paper_id})
-    #set the pdf block to '' first
     paper_info = {'book_name':self.lineEdit_book_name.setText,
                     'author':self.lineEdit_author.setText,
                     'press':self.lineEdit_press.setText,
@@ -161,7 +171,7 @@ def extract_paper_info(self):
     for key, item in paper_info.items():
         if key in target:
             if key == 'abstract':
-                format_ = '<p style="color:gold;margin-left:20px;">{}</p>'.format
+                format_ = '<p style="color:white;margin:0px;font-size:18px">{}</p>'.format
                 item(format_(target[key]))
             else:
                 item(target[key])
